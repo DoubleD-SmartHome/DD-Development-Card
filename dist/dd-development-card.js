@@ -1,139 +1,144 @@
 class CustomButtonCard extends HTMLElement {
-  constructor() {
-    super();
-    this.attachShadow({ mode: "open" });
+	// 2025-03-19
+	// Whenever the state changes, a new `hass` object is set. Use this to
+	// update your content.
+	set hass(hass) {
+		// Initialize the content if it's not there yet.
+		if (!this.content) {
+			this.innerHTML = `
+				<link type="text/css" rel="stylesheet" href="/local/community/DD-ProxmoxVE-Card/dd-proxmoxve-card.css">
+				<ha-card df>
+  				<div class="card-content"></div>
+    				</ha-card>
+			`;
+			this.content = this.querySelector("div");
+		}
 
-    // Create container
-    const container = document.createElement("div");
-    container.classList.add("container");
+		const DEVICE_NAME = this.config.device;
+		const TYPE = DEVICE_NAME.substring(0, DEVICE_NAME.indexOf('_'));
+		const LOGO = this.config.logo ? this.config.logo : "logo";
+		const STARTTIME = hass.states['sensor.'+this.config.device+'_last_boot'] ? new Date(hass.states['sensor.'+this.config.device+'_last_boot'].state) : "unavailable";
+		const STARTUP = "Start: "+STARTTIME.toString().substring(0,24);
+		const result = calculateTimeDifference(STARTTIME, Date());
+		const UPTIME = "Uptime: ("+result.days+" Day "+result.hours+" Hrs "+result.minutes+" Mins)";
+		const CPU = hass.states['sensor.'+this.config.device+'_cpu_used'] ? parseFloat(hass.states['sensor.'+this.config.device+'_cpu_used'].state).toFixed(2) : "unavailable";
+		const RAM = hass.states['sensor.'+this.config.device+'_memory_used_percentage'] ? parseFloat(hass.states['sensor.'+this.config.device+'_memory_used_percentage'].state).toFixed(2) : "unavailable";
+		const HDD = hass.states['sensor.'+this.config.device+'_disk_used_percentage'] ? parseFloat(hass.states['sensor.'+this.config.device+'_disk_used_percentage'].state).toFixed(2) : "unavailable";
+		const SWP = hass.states['sensor.'+this.config.device+'_swap_used_percentage'] ? parseFloat(hass.states['sensor.'+this.config.device+'_swap_used_percentage'].state).toFixed(2) : "unavailable";
+		const NETIN = hass.states['sensor.'+this.config.device+'_network_in'] ? parseFloat(hass.states['sensor.'+this.config.device+'_network_in'].state).toFixed(2) : "unavailable";
+		const NETOUT = hass.states['sensor.'+this.config.device+'_network_out'] ? parseFloat(hass.states['sensor.'+this.config.device+'_network_out'].state).toFixed(2) : "unavailable";
+		const STATUS = hass.states['binary_sensor.'+this.config.device+'_status'] ? hass.states['binary_sensor.'+this.config.device+'_status'].state : "unavailable";
+		const SSL_DATE = hass.states[this.config.ssl] ? new Date(hass.states[this.config.ssl].state) : "unavailable";
+		const SSL_EXP_SECONDS = Math.abs(SSL_DATE - SSL_DATE);
+		const SSL_EXP_DAYS = Math.floor(SSL_EXP_SECONDS / (1000 * 60 * 60 * 24))
+		const SSL_STATUS = "red";
 
-    // Create button
-    const button = document.createElement("button");
-    button.classList.add("button");
-    button.innerText = "Shutdown";
-
-    // Add button click event
-    button.addEventListener("click", () => this.showDialog());
-
-    // Create confirmation dialog (hidden by default)
-    const dialog = document.createElement("div");
-    dialog.classList.add("dialog", "hidden");
-
-    const dialogContent = document.createElement("div");
-    dialogContent.classList.add("dialog-content");
-
-    const dialogText = document.createElement("p");
-    dialogText.innerText = "Are you sure you want to perform this action?";
-
-    const confirmButton = document.createElement("button");
-    confirmButton.classList.add("confirm");
-    confirmButton.innerText = "Yes";
-    confirmButton.addEventListener("click", () => this.confirmAction());
-
-    const cancelButton = document.createElement("button");
-    cancelButton.classList.add("cancel");
-    cancelButton.innerText = "No";
-    cancelButton.addEventListener("click", () => this.hideDialog());
-
-    // Append dialog elements
-    dialogContent.appendChild(dialogText);
-    dialogContent.appendChild(confirmButton);
-    dialogContent.appendChild(cancelButton);
-    dialog.appendChild(dialogContent);
-
-    // Append elements to container
-    container.appendChild(button);
-    container.appendChild(dialog);
-
-    // Append styles
-    const style = document.createElement("style");
-    style.textContent = `
-      .button {
-        background-color: #e74c3c;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-      }
-      .button:hover {
-        background-color: #c0392b;
-      }
-      .dialog {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-      }
-      .dialog.hidden {
-        display: none;
-      }
-      .dialog-content {
-        background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-      .confirm {
-        background-color: #27ae60;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 10px 20px;
-        cursor: pointer;
-        margin: 5px;
-      }
-      .confirm:hover {
-        background-color: #1e8449;
-      }
-      .cancel {
-        background-color: #e74c3c;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 10px 20px;
-        cursor: pointer;
-        margin: 5px;
-      }
-      .cancel:hover {
-        background-color: #c0392b;
-      }
+		
+    this.content.innerHTML = `
+	 <div class="df-proxmox-container">
+	  <div class="grid-item logo" style="height: 80%; background: center / contain no-repeat url('/local/community/DD-ProxmoxVE-Card/assets/${LOGO}.png');"></div>
+	  <div class="grid-item main no-overflow">
+	    <div class="no-overflow">${DEVICE_NAME}</div>
+	    <div class="no-overflow" title="Started: ${STARTUP}">${UPTIME}</div>
+	  </div>
+	  <div class="grid-item status">
+	    <div class="${STATUS}" style="display: flex; justify-content: center; height:30px;">
+	      <div title="${STATUS}" class="" style="height: 80%; width: 80%; background: center / contain no-repeat url('/local/community/DD-ProxmoxVE-Card/assets/${TYPE}_${STATUS}.png');"></div>
+	    </div>
+	    <div class="" style="display: flex; justify-content: center; height:30px;">
+              <div id="icon-container" style="width: 32px; float: left;"  title="Last Backup:&#013;${SSL_DATE}"><ha-icon icon="mdi:backup-restore" style="color: goldenrod;"></ha-icon></div>
+	      <div id="icon-container" style="width: 32px; float: left;" title="SSL Certificate Expires:&#013;${SSL_DATE}"><ha-icon icon="mdi:certificate" style="color: darkgreen;"></ha-icon></div>
+              <div id="icon-container" style="width: 32px; float: left;" title="SSL Certificate Expires:&#013;${SSL_DATE}"><ha-icon icon="mdi:console" style="color: darkgreen;"></ha-icon></div>
+            </div>
+	  </div>
+	  <div class="grid-item stat1 df-dark_supported">
+            S1g
+	  </div>
+	  <div class="grid-item stat2 df-dark_supported">
+   	    <div class="STAT_VALUE df-dark_supported">${RAM}%</div>
+          </div>
+	  <div class="grid-item stat3 df-dark_supported">
+            <div class="STAT_VALUE df-dark_supported">${RAM}%</div>
+	  </div>
+	  <div class="grid-item stat4 df-dark_supported">
+            <div class="STAT_VALUE df-dark_supported">${RAM}%</div>
+          </div>
+	  <div class="grid-item stat5 df-dark_supported">
+            <div class="STAT_VALUE df-dark_supported">${RAM}%</div>
+          </div>
+	  <div class="grid-item stat6 df-dark_supported">
+            <div class="STAT_VALUE df-dark_supported">${RAM}%</div>
+          </div>
+	  <div class="grid-item actions">
+            <button class="button" @click=${this._press}>
+              Shutdown
+            </button>
+            Actions Coming Soon...
+	  </div>
+	</div>
     `;
+		
+  	}
 
-    // Append container and styles to shadow DOM
-    this.shadowRoot.appendChild(style);
-    this.shadowRoot.appendChild(container);
+	_press(ev) {
+		alert("Pressed");
+		ev.stopPropagation();
+		this.hass.callService("button", "press", {
+			entity_id: button.lxc_base_local_101_shutdown,
+		});
+	}
 
-    // Store references to dialog elements
-    this.dialog = dialog;
-  }
-
-  showDialog() {
-    this.dialog.classList.remove("hidden");
-  }
-
-  hideDialog() {
-    this.dialog.classList.add("hidden");
-  }
-
-  confirmAction() {
-    const entityId = this.getAttribute("entity");
-    if (entityId && window.hass) {
-      window.hass.callService("button", "press", {
-        entity_id: entityId,
-      });
-    }
-    this.hideDialog();
-  }
-}
+	  	// The user supplied configuration. Throw an exception and Home Assistant
+	  	// will render an error card.
+	  	setConfig(config) {
+	  	  //if (!config.load_entity) {
+	    	  //  throw new Error("You need to define an entity2");
+		    //}
+		    this.config = config;
+		  }
+	
+		  // The height of your card. Home Assistant uses this to automatically
+		  // distribute all cards over the available columns in masonry view
+		  getCardSize() {
+		    return 4;
+		  }
+		
+		  // The rules for sizing your card in the grid in sections view
+		  getLayoutOptions() {
+		    return {
+		      grid_rows: 3,
+		      grid_columns: 4,
+		      grid_min_rows: 3,
+		      grid_max_rows: 3,
+		    };
+		  }
+		
+		static getStubConfig() {
+	    		return { device: "lxc_name_number" }
+	  	}
+	}
 
 customElements.define("custom-button-card", CustomButtonCard);
+
+// Add card type to the Home Assistant card registry
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: 'custome-button-card',
+  name: 'DD Development Card',
+  description: 'a DoubleD Development Card.',
+  preview: true,
+});
+
+  function calculateTimeDifference(startDate, endDate) {
+    // Convert dates to milliseconds
+    const start = new Date(startDate).getTime();
+    const end = new Date(endDate).getTime();
+    // Calculate the difference in milliseconds
+    const difference = end - start;
+    // Calculate days, hours, minutes, and seconds
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+    return { days, hours, minutes, seconds };
+  }
