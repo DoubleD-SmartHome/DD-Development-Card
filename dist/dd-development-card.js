@@ -82,9 +82,8 @@ class CustomButtonCard extends HTMLElement {
 
 	_press(ev) {
 		alert("Pressed");
-		ev.stopPropagation();
 		this.hass.callService("button", "press", {
-			entity_id: button.lxc_base_local_101_shutdown,
+			entity_id:  this._config.shutdown,
 		});
 	}
 
