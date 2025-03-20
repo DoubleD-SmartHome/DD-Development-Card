@@ -1,6 +1,6 @@
 import { LitElement, html, css } from "https://unpkg.com/lit-element@2.0.1/lit-element.js?module";
 
-class DDDevelopmentCard extends LitElement {
+class CustomButtonCard extends LitElement {
   static get properties() {
     return {
       hass: { type: Object },
@@ -50,4 +50,4 @@ class DDDevelopmentCard extends LitElement {
   }
 }
 
-customElements.define("dd-development-card", DDDevelopmentCard);
+customElements.define("custom-button-card", CustomButtonCard);
