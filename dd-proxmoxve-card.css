@@ -1,0 +1,114 @@
+/* Layout */
+/* 2025-03-16 3:08 */
+
+df-proxmox-card {
+	display: grid;
+	height: 100%;
+}
+
+.df-proxmox-container {  
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+	grid-template-rows: 1fr 1fr;
+	gap: 0px 0px;
+	grid-auto-flow: row;
+	grid-template-areas:
+		"Logo Main Main Main Main Actions"
+		"Stat1 Stat2 Stat3 Stat4 Stat5 Stat6";
+}
+
+.STATS {
+	display: flex;
+	place-items: center; /* Centers both vertically and horizontally */
+	height: 100%; /* Full viewport height for demonstration */
+	background-color: #252525;
+	border-radius: 50%;
+}
+
+.STAT_VALUE {
+	width: 100%;
+	text-align: center;
+}
+
+.Stat1 {
+	grid-area: Stat1;
+	padding: 5px 0 0 0;
+	background: center / contain no-repeat url('/local/community/DD-ProxmoxVE-Card/assets/stats/cpu.png');
+}
+
+.Stat2 {
+	grid-area: Stat2;
+	padding: 5px 0 0 0;
+	background: center / contain no-repeat url('/local/community/DD-ProxmoxVE-Card/assets/stats/ram.png');
+}
+
+.Stat3 {
+	grid-area: Stat3;
+	padding: 5px 0 0 0;
+	background: center / contain no-repeat url('/local/community/DD-ProxmoxVE-Card/assets/stats/hdd.png');
+}
+
+.Stat4 {
+	grid-area: Stat4;
+	padding: 5px 0 0 0;
+	background: center / contain no-repeat url('/local/community/DD-ProxmoxVE-Card/assets/stats/hdd.png');
+}
+.Stat5 {
+	grid-area: Stat5;
+	padding: 5px 0 0 0;
+	background: center / contain no-repeat url('/local/community/DD-ProxmoxVE-Card/assets/stats/hdd.png');
+}
+
+.Stat6 {
+	grid-area: Stat6;
+	padding: 5px 0 0 0;
+	background: center / contain no-repeat url('/local/community/DD-ProxmoxVE-Card/assets/stats/hdd.png');
+}
+.Logo {
+	grid-area: Logo;
+}
+
+.Main {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-rows: 1fr 1fr 1fr;
+	gap: 0px 0px;
+	grid-auto-flow: row;
+	grid-template-areas:
+		"Name Name Name"
+		"Uptime Uptime Uptime"
+		"Other Other Other";
+	grid-area: Main;
+}
+
+.Name { grid-area: Name; }
+
+.Uptime { grid-area: Uptime; }
+
+.Other { grid-area: Other; }
+
+.Network { grid-area: Network; }
+
+.Swap { grid-area: Swap; }
+
+.Actions {  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "MainAction"
+    "Unused";
+  grid-area: Actions;
+}
+
+.MainAction { grid-area: MainAction;  }
+
+.Unused { grid-area: Unused; }
+
+/* Dark Mode CSS Code */
+@media (prefers-color-scheme: dark) {
+	.df-dark_supported {
+		filter: invert(1);
+	}
+}
