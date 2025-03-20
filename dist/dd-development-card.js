@@ -123,7 +123,7 @@ customElements.define("custom-button-card", CustomButtonCard);
 // Add card type to the Home Assistant card registry
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: 'custome-button-card',
+  type: 'custom-button-card',
   name: 'DD Development Card',
   description: 'a DoubleD Development Card.',
   preview: true,
